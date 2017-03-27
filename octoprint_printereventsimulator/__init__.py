@@ -97,22 +97,22 @@ class PrintereventsimulatorPlugin(octoprint.plugin.SettingsPlugin,
 		# Printer Events
 		if command == "PrintStarted":
 			self._logger.info("PrintStarted requested.....")
-			eventManager().fire(Events.PRINT_STARTED)
+			eventManager().fire(Events.PRINT_STARTED, data)
 		elif command == "PrintFailed":
 			self._logger.info("PrintFailed requested ")
-			eventManager().fire(Events.PRINT_FAILED)
+			eventManager().fire(Events.PRINT_FAILED, data)
 		elif command == "PrintDone":
 			self._logger.info("PrintDone requested")
-			eventManager().fire(Events.PRINT_DONE)
+			eventManager().fire(Events.PRINT_DONE, data)
 		elif command == "PrintCancelled":
 			self._logger.info("PrintCancelled requested")
-			eventManager().fire(Events.PRINT_CANCELLED)
+			eventManager().fire(Events.PRINT_CANCELLED, data)
 		elif command == "PrintPaused":
 			self._logger.info("PrintPaused requested")
-			eventManager().fire(Events.PRINT_PAUSED)
+			eventManager().fire(Events.PRINT_PAUSED, data)
 		elif command == "PrintResumed":
 			self._logger.info("PrintResumed requested")
-			eventManager().fire(Events.PRINT_RESUMED)
+			eventManager().fire(Events.PRINT_RESUMED, data)
 
 		# Communication Events
 		elif command == "Connecting":
@@ -140,6 +140,13 @@ class PrintereventsimulatorPlugin(octoprint.plugin.SettingsPlugin,
 	# EventHandler Plugin
 	def on_event(self, event, payload):
 		self._logger.info("Event! {}".format(event))
+
+		# Publish the event for the javascript to pick up.
+		# TODO: allow settings to disable this
+		pluginData = dict(
+			eventEvent = event,
+			eventPayload=payload)
+		self._plugin_manager.send_plugin_message(self._identifier, pluginData)
 
 	# Create a fake printer object
 	# This is how the virtual printer works.

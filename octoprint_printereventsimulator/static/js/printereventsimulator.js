@@ -13,43 +13,52 @@ $(function() {
         self.loginStateViewModel = parameters[0];
         self.settingsViewModel = parameters[1];
         self.printer = parameters[1];
+        self.eventHistory = ko.observableArray([]);
 
         self.onBeforeBinding = function () {
             self.settings = self.settingsViewModel.settings.plugins.printereventsimulator;
 			console.log("Printer events Settings: " + self.settings );
         };
 
-        // TODO: Implement your plugin's view model here.
+        self.onDataUpdaterPluginMessage = function(plugin, data) {
+            if (plugin != "printereventsimulator") {
+                return;
+            }
+
+            console.log("Event seen: '" + data.eventEvent + "', payload: " + JSON.stringify(data.eventPayload));
+
+            self.eventHistory.push({name: data.eventEvent, payload: JSON.stringify(data.eventPayload)});
+        }
 
         // Printing
         self.printStarted = function() {
             console.log("Fake PrintStarted");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintStarted", {}, {});
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintStarted", {name: "FakePrint", path:".", origin:"local"}, {});
         };
 
         self.printFailed = function() {
             console.log("Fake PrintFailed");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintFailed", {}, {});
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintFailed", {name: "FakePrint", path:".", origin:"local"}, {});
         };
 
         self.printDone = function() {
             console.log("Fake PrintDone");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintDone", {}, {});
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintDone", {name: "FakePrint", path:".", origin:"local", time: 123456}, {});
         };
 
         self.printCancelled = function() {
             console.log("Fake PrintCancelled");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintCancelled", {}, {});
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintCancelled", {name: "FakePrint", path:".", origin:"local"}, {});
         };
 
         self.printPaused = function() {
             console.log("Fake PrintPaused");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintPaused", {}, {});
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintPaused", {name: "FakePrint", path:".", origin:"local"}, {});
         };
 
         self.printResumed = function() {
             console.log("Fake PrintResumed");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintResumed", {}, {});
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintResumed", {name: "FakePrint", path:".", origin:"local"}, {});
         };
 
 
@@ -74,7 +83,7 @@ $(function() {
             OctoPrint.simpleApiCommand(self.pluginId, "Disconnected", {}, {});
         };
 
-        self.error = function() {
+        self.printerError = function() {
             console.log("Fake Error");
             OctoPrint.simpleApiCommand(self.pluginId, "Error", {error: "Error Message..."}, {});
         };
