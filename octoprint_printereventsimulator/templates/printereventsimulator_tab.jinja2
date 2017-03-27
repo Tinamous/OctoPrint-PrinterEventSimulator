@@ -1,15 +1,20 @@
 <div class="row-fluid">
     <h3>Printer Communication Events</h3>
-    <button class="btn btn-block control-box" data-bind="click: connecting">Connecting</button>
-    <button class="btn btn-block control-box" data-bind="click: connected">Connected</button>
+    <div class="form-inline">
+        <button class="btn btn-block control-box" data-bind="click: connecting">Connecting</button>
+        <button class="btn btn-block control-box" data-bind="click: connected">Connected</button>
 
-    <button class="btn btn-block control-box" data-bind="click: disconnecting">Disconnecting</button>
-    <button class="btn btn-block control-box" data-bind="click: disconnected">Disconnected</button>
+        <button class="btn btn-block control-box" data-bind="click: disconnecting">Disconnecting</button>
+        <button class="btn btn-block control-box" data-bind="click: disconnected">Disconnected</button>
 
-    <button class="btn btn-block control-box" data-bind="click: printerError">Error</button>
-    <!-- Need state_id and state_string -->
-    <button class="btn btn-block control-box" data-bind="click: printerStateChanged">PrinterStateChanged</button>
-
+        <button class="btn btn-block control-box" data-bind="click: printerError">Error</button>
+        <!-- Need state_id and state_string -->
+        <div class="form-group">
+            <label for="" class="sr-only">PrinterStateChanged</label>
+            <select class="form-control" data-bind="options: stateOptions, value: selectedOption"></select>
+            <button class="btn btn-block control-box form-control" data-bind="click: printerStateChanged">PrinterStateChanged</button>
+        </div>
+    </div>
 </div>
 
 <div class="row-fluid">

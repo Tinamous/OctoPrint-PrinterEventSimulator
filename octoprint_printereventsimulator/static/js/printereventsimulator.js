@@ -13,7 +13,25 @@ $(function() {
         self.loginStateViewModel = parameters[0];
         self.settingsViewModel = parameters[1];
         self.printer = parameters[1];
+
         self.eventHistory = ko.observableArray([]);
+        self.lastEvent = ko.observable({name: "Event Simulator", payload: ""});
+
+        self.selectedOption = ko.observable("OPERATIONAL");
+        self.stateOptions = ko.observableArray(["OPEN_SERIAL",
+            "DETECT_SERIAL",
+            "DETECT_BAUDRATE",
+            "CONNECTING",
+            "OPERATIONAL",
+            "PRINTING",
+            "PAUSED",
+            "CLOSED",
+            "ERROR",
+            "CLOSED_WITH_ERROR",
+            "TRANFERING_FILE",
+            "OFFLINE",
+            "UNKNOWN",
+            "NONE"]);
 
         self.onBeforeBinding = function () {
             self.settings = self.settingsViewModel.settings.plugins.printereventsimulator;
@@ -27,38 +45,41 @@ $(function() {
 
             console.log("Event seen: '" + data.eventEvent + "', payload: " + JSON.stringify(data.eventPayload));
 
-            self.eventHistory.push({name: data.eventEvent, payload: JSON.stringify(data.eventPayload)});
+            var eventDetails = {name: data.eventEvent, payload: JSON.stringify(data.eventPayload)};
+            self.eventHistory.push(eventDetails);
+            self.lastEvent(eventDetails);
         }
 
         // Printing
         self.printStarted = function() {
             console.log("Fake PrintStarted");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintStarted", {name: "FakePrint", path:".", origin:"local"}, {});
+            // File is depricated in 1.3.0 but still used by the timelapse component
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintStarted", {name: "FakePrint", path:".", origin:"local", file: "/gcode/FakePrint.gcode"}, {});
         };
 
         self.printFailed = function() {
             console.log("Fake PrintFailed");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintFailed", {name: "FakePrint", path:".", origin:"local"}, {});
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintFailed", {name: "FakePrint", path:".", origin:"local", file: "/gcode/FakePrint.gcode"}, {});
         };
 
         self.printDone = function() {
             console.log("Fake PrintDone");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintDone", {name: "FakePrint", path:".", origin:"local", time: 123456}, {});
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintDone", {name: "FakePrint", path:".", origin:"local", time: 123456, file: "/gcode/FakePrint.gcode"}, {});
         };
 
         self.printCancelled = function() {
             console.log("Fake PrintCancelled");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintCancelled", {name: "FakePrint", path:".", origin:"local"}, {});
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintCancelled", {name: "FakePrint", path:".", origin:"local", file: "/gcode/FakePrint.gcode"}, {});
         };
 
         self.printPaused = function() {
             console.log("Fake PrintPaused");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintPaused", {name: "FakePrint", path:".", origin:"local"}, {});
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintPaused", {name: "FakePrint", path:".", origin:"local", file: "/gcode/FakePrint.gcode"}, {});
         };
 
         self.printResumed = function() {
             console.log("Fake PrintResumed");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrintResumed", {name: "FakePrint", path:".", origin:"local"}, {});
+            OctoPrint.simpleApiCommand(self.pluginId, "PrintResumed", {name: "FakePrint", path:".", origin:"local", file: "/gcode/FakePrint.gcode"}, {});
         };
 
 
@@ -90,7 +111,8 @@ $(function() {
 
         self.printerStateChanged = function() {
             console.log("Fake PrinterStateChanged");
-            OctoPrint.simpleApiCommand(self.pluginId, "PrinterStateChanged", {state_id: 1, state_string: "1"}, {});
+            var payload = {state_id: self.selectedOption(), state_string: self.selectedOption()};
+            OctoPrint.simpleApiCommand(self.pluginId, "PrinterStateChanged", payload, {});
         };
 
     }

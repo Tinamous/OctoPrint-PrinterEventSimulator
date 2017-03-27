@@ -15,6 +15,9 @@ class PrintereventsimulatorPlugin(octoprint.plugin.SettingsPlugin,
                                   octoprint.plugin.TemplatePlugin,
 								  octoprint.plugin.SimpleApiPlugin,
 								  octoprint.plugin.EventHandlerPlugin):
+	def __init__(self):
+		self._logger = logging.getLogger(__name__)
+
 	def initialize(self):
 		self._logger.setLevel(logging.DEBUG)
 		self._logger.info("Printer Event Simulator [%s] initialized..." % self._identifier)
@@ -92,55 +95,39 @@ class PrintereventsimulatorPlugin(octoprint.plugin.SettingsPlugin,
 	#	"percentage": "100"
 	# }
 	def on_api_command(self, command, data):
-		self._logger.info("On Api Data: {}".format(data))
+		# self._logger.info("On Api Data: {}".format(data))
 
 		# Printer Events
 		if command == "PrintStarted":
-			self._logger.info("PrintStarted requested.....")
 			eventManager().fire(Events.PRINT_STARTED, data)
 		elif command == "PrintFailed":
-			self._logger.info("PrintFailed requested ")
 			eventManager().fire(Events.PRINT_FAILED, data)
 		elif command == "PrintDone":
-			self._logger.info("PrintDone requested")
 			eventManager().fire(Events.PRINT_DONE, data)
 		elif command == "PrintCancelled":
-			self._logger.info("PrintCancelled requested")
 			eventManager().fire(Events.PRINT_CANCELLED, data)
 		elif command == "PrintPaused":
-			self._logger.info("PrintPaused requested")
 			eventManager().fire(Events.PRINT_PAUSED, data)
 		elif command == "PrintResumed":
-			self._logger.info("PrintResumed requested")
 			eventManager().fire(Events.PRINT_RESUMED, data)
 
 		# Communication Events
 		elif command == "Connecting":
-			self._logger.info("Connecting requested")
-			eventManager().fire(Events.CONNECTING)
+			eventManager().fire(Events.CONNECTING, data)
 		elif command == "Connected":
-			self._logger.info("Connected requested.")
-			# payload = dict(port="VIRTUAL", baudrate="9600")
-			# push the payload through
 			eventManager().fire(Events.CONNECTED, data)
 		elif command == "Disconnecting":
-			self._logger.info("Disconnecting requested")
-			eventManager().fire(Events.DISCONNECTING)
+			eventManager().fire(Events.DISCONNECTING, data)
 		elif command == "Disconnected":
-			self._logger.info("Disconnected requested")
-			eventManager().fire(Events.DISCONNECTED)
+			eventManager().fire(Events.DISCONNECTED, data)
 		elif command == "Error":
-			self._logger.info("Error requested", data)
-			eventManager().fire(Events.ERROR) # Needs info
+			eventManager().fire(Events.ERROR, data)
 		elif command == "PrinterStateChanged":
-			self._logger.info("PrinterStateChanged requested")
 			eventManager().fire(Events.PRINTER_STATE_CHANGED, data)
 
 
 	# EventHandler Plugin
 	def on_event(self, event, payload):
-		self._logger.info("Event! {}".format(event))
-
 		# Publish the event for the javascript to pick up.
 		# TODO: allow settings to disable this
 		pluginData = dict(
@@ -151,7 +138,7 @@ class PrintereventsimulatorPlugin(octoprint.plugin.SettingsPlugin,
 	# Create a fake printer object
 	# This is how the virtual printer works.
 	def serial_factory(self, comm_instance, port, baudrate, read_timeout):
-		self._logger.warn("serial_factory!")
+		#self._logger.warn("serial_factory!")
 		# Need to add VIRTUAL2 into the additional ports settings.
 		# additionalPorts = settings().get(["serial", "additionalPorts"])
 		#settings().set("serial/additionalPorts", "/VIRTUAL2")
@@ -181,7 +168,7 @@ def __plugin_load__():
 	global __plugin_hooks__
 	__plugin_hooks__ = {
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
-		"octoprint.comm.transport.serial.factory": plugin.serial_factory,
-		"octoprint.printer.factory": plugin.fake_printer_factory,
+		#"octoprint.comm.transport.serial.factory": plugin.serial_factory,
+		#"octoprint.printer.factory": plugin.fake_printer_factory,
 	}
 
